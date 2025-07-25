@@ -1,25 +1,190 @@
-ECHO is on.
-# Ignore Python virtual environments
+# Python virtual environments
 venv/
 .venv/
+env/
+ENV/
+env.bak/
+venv.bak/
 
-# Ignore Python cache
+# Python cache
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Ignore system files
+# System files
 .DS_Store
 Thumbs.db
 
-# Ignore VS Code settings
+# VS Code settings
 .vscode/
 
-# Ignore data/audio/model checkpoints
+# Data/audio/model checkpoints
 *.wav
 *.mp3
 *.pt
 *.ckpt
 *.h5
 
-# Ignore node_modules if frontend has JS packages
+# node_modules
 node_modules/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#Pipfile.lock
+
+# UV
+#uv.lock
+
+# poetry
+#poetry.lock
+#poetry.toml
+
+# pdm
+#pdm.lock
+#pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#pixi.lock
+.pixi
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Environment variables
+.env
+.envrc
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython
+cython_debug/
+
+# JetBrains (PyCharm etc.)
+#.idea/
+
+# Abstra
+.abstra/
+
+# Visual Studio Code
+# .vscode/
+
+# Ruff
+.ruff_cache/
+
+# PyPI
+.pypirc
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Streamlit secrets
+.streamlit/secrets.toml
