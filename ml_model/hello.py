@@ -10,7 +10,7 @@ from textblob import TextBlob
 # from textblob import TextBlob
 
 # ======= Settings =======
-AUDIO_MP3 = os.path.join(os.path.dirname(__file__), "test_audio.mp3")
+AUDIO_MP3 = os.path.join(os.path.dirname(__file__), "test_audio2.mp3")
 VOSK_MODEL_PATH = os.path.join(os.path.dirname(__file__), "vosk-model-small-en-us-0.15")
 WAV_FILE = "converted_audio.wav"
 
