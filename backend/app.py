@@ -1,49 +1,38 @@
-# backend/app.py
-import os
 import sys
-import tempfile
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
+from pydub import AudioSegment  # ✅ convert formats
+import tempfile
 
-# Fix import path to reach ml_model
+# Add project root to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from ml_model.vosk_mood_pipeline import transcribe_audio, classify_mood
+from ml_model.whisper_mood_pipeline import process_audio_file
 
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/process', methods=['POST'])
-def process_audio():
-    if 'audio' not in request.files:
-        return jsonify({"error": "No audio file provided"}), 400
+@app.route("/analyze", methods=["POST"])
+def analyze():
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-    audio_file = request.files['audio']
-    filename = secure_filename(audio_file.filename)
+    file = request.files["file"]
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_file:
-        audio_path = temp_file.name
-        audio_file.save(audio_path)
+    # Save uploaded file temporarily
+    temp_input = tempfile.NamedTemporaryFile(delete=False, suffix=".webm")
+    file.save(temp_input.name)
 
-    try:
-        transcription = transcribe_audio(audio_path)
-        mood = classify_mood(transcription)
+    # ✅ Convert to WAV (16kHz mono) for Whisper
+    audio = AudioSegment.from_file(temp_input.name)
+    audio = audio.set_frame_rate(16000).set_channels(1)
+    wav_path = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
+    audio.export(wav_path, format="wav")
 
-        # Mood → Spotify playlist mapping
-        playlists = {
-            "Happy": "https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC",
-            "Sad": "https://open.spotify.com/playlist/37i9dQZF1DX7qK8ma5wgG1",
-            "Angry": "https://open.spotify.com/playlist/37i9dQZF1DX59NCqCqJtoH",
-            "Neutral": "https://open.spotify.com/playlist/37i9dQZF1DX4E3UdUs7fUx"
-        }
+    # Run through Whisper + sentiment
+    result = process_audio_file(wav_path)
 
-        return jsonify({
-            "transcription": transcription,
-            "mood": mood,
-            "spotify_url": playlists.get(mood, "")
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    return jsonify(result)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)

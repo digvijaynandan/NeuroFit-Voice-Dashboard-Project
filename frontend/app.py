@@ -1,24 +1,66 @@
 import streamlit as st
 import requests
+import tempfile
+import os
+from streamlit_mic_recorder import mic_recorder
 
-st.set_page_config(page_title="NeuroFit Voice Dashboard", page_icon="🎙️")
-st.title("🎙️ NeuroFit Voice Dashboard")
-st.write("Upload your voice and get the emotion behind it!")
+# ------------------------------
+# Streamlit Page Config
+# ------------------------------
+st.set_page_config(
+    page_title="NeuroFit Voice Dashboard",
+    page_icon="🎤",
+    layout="centered"
+)
 
-# Upload .wav file
-audio_file = st.file_uploader("Upload your voice file (WAV format)", type=["wav"])
+st.title("🎤 NeuroFit Voice Dashboard")
+st.markdown("Real-time voice transcription, mood detection, and music suggestions.")
 
-if audio_file is not None:
-    st.audio(audio_file, format='audio/wav')
-    
-    if st.button("Analyze"):
-        # Send to backend Flask server
-        files = {"file": audio_file.getvalue()}
-        response = requests.post("http://127.0.0.1:5000/predict", files={"file": audio_file})
-        
+# ------------------------------
+# Record Audio
+# ------------------------------
+audio = mic_recorder(
+    start_prompt="🎙️ Start Recording",
+    stop_prompt="🛑 Stop & Analyze",
+    just_once=True,
+    use_container_width=True,
+)
+
+if audio and "bytes" in audio:
+    st.info("Audio recorded. Sending to backend for processing...")
+
+    # Save audio to temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+        tmp.write(audio["bytes"])
+        tmp_path = tmp.name
+
+    try:
+        # Send file to Flask backend
+        with open(tmp_path, "rb") as f:
+            response = requests.post(
+                "http://localhost:5000/analyze",
+                files={"file": f}
+            )
+
         if response.status_code == 200:
             result = response.json()
-            st.success(f"🎯 Sentiment: {result['sentiment']}")
-            st.info(f"📝 Transcribed Text: {result['text']}")
+
+            # Display transcription + results
+            st.subheader("📝 Transcription")
+            st.write(result["transcription"])
+
+            st.subheader("📊 Sentiment Analysis")
+            st.write(f"**Sentiment:** {result['sentiment']} (Confidence: {result['confidence']})")
+
+            st.subheader("🎶 Suggested Mood & Playlist")
+            st.write(f"Mood: {result['mood']}")
+            st.markdown(f"[Open Playlist 🎵]({result['spotify_playlist']})")
+
         else:
-            st.error("❌ Something went wrong. Please try again.")
+            st.error(f"Backend error: {response.text}")
+
+    except Exception as e:
+        st.error(f"⚠️ Could not reach backend: {e}")
+
+    finally:
+        os.remove(tmp_path)  # cleanup
